@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AssistBot Hub</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f8f8; }
+    h2 { color: #2c3e50; }
+    .section { margin-bottom: 40px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    textarea, input { width: 100%; padding: 10px; margin-top: 5px; }
+    button { margin-top: 10px; padding: 10px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #2980b9; }
+    pre { background: #eee; padding: 10px; white-space: pre-wrap; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>🤖 AssistBot Hub</h1>
+
+  <div class="section" id="data-entry">
+    <h2>🏗️ Data Entry Bot</h2>
+    <textarea id="dataInput" placeholder="Enter structured data (e.g., name, age, job)"></textarea>
+    <button onclick="dataEntry()">Submit Data</button>
+    <pre id="dataOutput"></pre>
+  </div>
+
+  <div class="section" id="message-generator">
+    <h2>📩 Message Creator Bot</h2>
+    <textarea id="messageInput" placeholder="Describe the message need (e.g., thank you email to a client)"></textarea>
+    <button onclick="generateMessage()">Generate Message</button>
+    <pre id="messageOutput"></pre>
+  </div>
+
+  <div class="section" id="stock-helper">
+    <h2>📈 Stock Graph Bot</h2>
+    <input id="stockInput" placeholder="Enter stock ticker (e.g., AAPL)" />
+    <button onclick="getStockGraph()">Get Chart</button>
+    <div id="stockChart"></div>
+  </div>
+
+  <div class="section" id="language-learning">
+    <h2>🌍 Language Learning Bot</h2>
+    <textarea id="langInput" placeholder="Enter a sentence to translate (e.g., 'Hello, how are you?' to Spanish)"></textarea>
+    <button onclick="translateText()">Translate</button>
+    <pre id="langOutput"></pre>
+  </div>
+
+  <div class="section" id="grammar-helper">
+    <h2>📖 Grammar Correction Bot</h2>
+    <textarea id="grammarInput" placeholder="Paste book text for grammar correction"></textarea>
+    <button onclick="correctGrammar()">Correct Grammar</button>
+    <pre id="grammarOutput"></pre>
+  </div>
+
+  <script>
+    async function callBot(prompt) {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+        },
+        body: JSON.stringify({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    }
+
+    async function dataEntry() {
+      const input = document.getElementById("dataInput").value;
+      const output = await callBot(`Format the following data for record-keeping: ${input}`);
+      document.getElementById("dataOutput").textContent = output;
+    }
+
+    async function generateMessage() {
+      const input = document.getElementById("messageInput").value;
+      const output = await callBot(`Write a professional message for this situation: ${input}`);
+      document.getElementById("messageOutput").textContent = output;
+    }
+
+    async function getStockGraph() {
+      const ticker = document.getElementById("stockInput").value.toUpperCase();
+      const chartURL = `https://finviz.com/chart.ashx?t=${ticker}&ty=c&ta=1&p=d&s=l`;
+      document.getElementById("stockChart").innerHTML = `<img src="${chartURL}" alt="Stock chart for ${ticker}" />`;
+    }
+
+    async function translateText() {
+      const input = document.getElementById("langInput").value;
+      const output = await callBot(`Translate this: ${input}`);
+      document.getElementById("langOutput").textContent = output;
+    }
+
+    async function correctGrammar() {
+      const input = document.getElementById("grammarInput").value;
+      const output = await callBot(`Correct grammar and spelling: ${input}`);
+      document.getElementById("grammarOutput").textContent = output;
+    }
+  </script>
+
+</body>
+</html>
